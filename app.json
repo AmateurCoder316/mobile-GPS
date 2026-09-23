@@ -2,29 +2,32 @@
   "expo": {
     "name": "GPS Nopeusmittari",
     "slug": "mobile-gps",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/skick.png",
     "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/skick.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#080808"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.amateurcoder316.mobilegps",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Sijaintia käytetään nopeuden mittaamiseen GPS:n avulla."
+        "NSLocationWhenInUseUsageDescription": "Sijaintia käytetään nopeuden ja kuljetun matkan mittaamiseen GPS:n avulla."
       }
     },
     "android": {
       "package": "com.amateurcoder316.mobilegps",
       "adaptiveIcon": {
         "backgroundColor": "#080808",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/skick.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/skick.png"
     },
     "extra": {
       "eas": {
