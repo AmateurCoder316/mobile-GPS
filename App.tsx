@@ -52,6 +52,7 @@ export default function App() {
             accuracy: Location.Accuracy.BestForNavigation,
             timeInterval: 100,
             distanceInterval: 0,
+            mayShowUserSettingsDialog: true,
           },
           (location) => {
             if (!active) return;
@@ -74,9 +75,8 @@ export default function App() {
             else if (accuracyMeters <= 15) setGpsState('good');
             else setGpsState('weak');
 
-            if (speedMS === null || !Number.isFinite(speedMS) || speedMS < 0) {
-              setSpeed(null);
-            } else {
+            // Live speed is always updated. Trip controls only affect trip statistics.
+            if (speedMS !== null && Number.isFinite(speedMS) && speedMS >= 0) {
               setSpeed(speedMS * 3.6);
             }
 
