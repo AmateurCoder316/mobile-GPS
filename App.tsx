@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 
@@ -18,16 +18,18 @@ export default function App() {
   const [calibrationRemaining, setCalibrationRemaining] = useState(CALIBRATION_SECONDS);
   const [distanceMeters, setDistanceMeters] = useState(0);
   const [tripSeconds, setTripSeconds] = useState(0);
+  const [tripRunning, setTripRunning] = useState(false);
 
   const lastTimestamp = useRef<number | null>(null);
   const lastTripPoint = useRef<TripPoint | null>(null);
   const calibrated = useRef(false);
   const tripStartedAt = useRef<number | null>(null);
+  const tripRunningRef = useRef(false);
+  const tripTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let subscription: Location.LocationSubscription | null = null;
     let calibrationTimer: ReturnType<typeof setInterval> | null = null;
-    let tripTimer: ReturnType<typeof setInterval> | null = null;
     let active = true;
 
     async function startTracking() {
@@ -78,7 +80,7 @@ export default function App() {
               setSpeed(speedMS * 3.6);
             }
 
-            if (!calibrated.current || accuracyMeters === null || accuracyMeters > MAX_ACCURACY_METERS) {
+            if (!calibrated.current || !tripRunningRef.current || accuracyMeters === null || accuracyMeters > MAX_ACCURACY_METERS) {
               return;
             }
 
@@ -110,15 +112,6 @@ export default function App() {
               if (calibrationTimer) clearInterval(calibrationTimer);
               calibrated.current = true;
               lastTripPoint.current = null;
-              tripStartedAt.current = Date.now();
-              setTripSeconds(0);
-
-              tripTimer = setInterval(() => {
-                if (tripStartedAt.current !== null) {
-                  setTripSeconds((Date.now() - tripStartedAt.current) / 1000);
-                }
-              }, 1000);
-
               return 0;
             }
 
@@ -136,9 +129,41 @@ export default function App() {
       active = false;
       subscription?.remove();
       if (calibrationTimer) clearInterval(calibrationTimer);
-      if (tripTimer) clearInterval(tripTimer);
+      if (tripTimer.current) clearInterval(tripTimer.current);
     };
   }, []);
+
+  function startTrip() {
+    if (!calibrated.current || tripRunningRef.current) return;
+
+    setDistanceMeters(0);
+    setTripSeconds(0);
+    lastTripPoint.current = null;
+    tripStartedAt.current = Date.now();
+    tripRunningRef.current = true;
+    setTripRunning(true);
+
+    if (tripTimer.current) clearInterval(tripTimer.current);
+    tripTimer.current = setInterval(() => {
+      if (tripStartedAt.current !== null && tripRunningRef.current) {
+        setTripSeconds((Date.now() - tripStartedAt.current) / 1000);
+      }
+    }, 1000);
+  }
+
+  function resetTrip() {
+    tripRunningRef.current = false;
+    setTripRunning(false);
+    setDistanceMeters(0);
+    setTripSeconds(0);
+    lastTripPoint.current = null;
+    tripStartedAt.current = null;
+
+    if (tripTimer.current) {
+      clearInterval(tripTimer.current);
+      tripTimer.current = null;
+    }
+  }
 
   const status = getStatus(gpsState);
 
@@ -192,6 +217,27 @@ export default function App() {
         <Stat label="KESKINOPEUS" value={`${averageSpeed.toFixed(1)} km/h`} />
       </View>
 
+      <View style={styles.controls}>
+        <Pressable
+          onPress={startTrip}
+          disabled={tripRunning}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            tripRunning && styles.buttonDisabled,
+            pressed && !tripRunning && styles.buttonPressed,
+          ]}
+        >
+          <Text style={styles.primaryButtonText}>{tripRunning ? 'Käynnissä' : 'Aloita'}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={resetTrip}
+          style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
+        >
+          <Text style={styles.secondaryButtonText}>Nollaa</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.gpsInfo}>
         {accuracy !== null && <Info label="TARKKUUS" value={`±${Math.round(accuracy)} m`} />}
         {updateRate !== null && <Info label="PÄIVITYS" value={`${(updateRate / 1000).toFixed(1)} s`} />}
@@ -223,9 +269,13 @@ function Info({ label, value }: { label: string; value: string }) {
 function Branding() {
   return (
     <View style={styles.branding}>
-      <Image source={require('./assets/skick.png')} style={styles.brandLogo} resizeMode="contain" />
+      <View style={styles.brandLogoFrame}>
+        <Image source={require('./assets/skick.png')} style={styles.brandLogo} resizeMode="contain" />
+      </View>
       <Text style={styles.brandX}>×</Text>
-      <Image source={require('./assets/hl-logo.png')} style={styles.harbourLogo} resizeMode="contain" />
+      <View style={styles.brandLogoFrame}>
+        <Image source={require('./assets/hl-logo.png')} style={styles.harbourLogo} resizeMode="contain" />
+      </View>
     </View>
   );
 }
@@ -400,10 +450,51 @@ const styles = StyleSheet.create({
     marginTop: 7,
     fontVariant: ['tabular-nums'],
   },
+  controls: {
+    width: '100%',
+    maxWidth: 420,
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 14,
+  },
+  primaryButton: {
+    flex: 1.6,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButton: {
+    flex: 1,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#151515',
+    borderWidth: 1,
+    borderColor: '#242424',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButtonText: {
+    color: '#080808',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  secondaryButtonText: {
+    color: '#b8b8b8',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  buttonDisabled: {
+    backgroundColor: '#242424',
+  },
+  buttonPressed: {
+    opacity: 0.72,
+  },
   gpsInfo: {
     flexDirection: 'row',
     gap: 42,
-    marginTop: 24,
+    marginTop: 18,
   },
   infoItem: {
     alignItems: 'center',
@@ -423,24 +514,36 @@ const styles = StyleSheet.create({
   },
   branding: {
     position: 'absolute',
-    bottom: 26,
+    bottom: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0.72,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+    borderRadius: 14,
+    backgroundColor: '#0d0d0d',
+    borderWidth: 1,
+    borderColor: '#181818',
+    opacity: 0.88,
+  },
+  brandLogoFrame: {
+    width: 62,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   brandLogo: {
-    width: 54,
-    height: 32,
+    width: 58,
+    height: 25,
   },
   brandX: {
-    color: '#505050',
-    fontSize: 16,
-    fontWeight: '400',
-    marginHorizontal: 10,
+    color: '#454545',
+    fontSize: 14,
+    fontWeight: '500',
+    marginHorizontal: 5,
   },
   harbourLogo: {
-    width: 68,
-    height: 32,
+    width: 60,
+    height: 25,
   },
 });
