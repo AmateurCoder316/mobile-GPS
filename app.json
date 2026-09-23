@@ -6,11 +6,22 @@
     "orientation": "portrait",
     "icon": "./assets/skick.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/skick.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#080808"
-    },
+    "backgroundColor": "#080808",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#080808",
+          "image": "./assets/skick.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#080808",
+            "image": "./assets/skick.png"
+          }
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.amateurcoder316.mobilegps",
