@@ -4,7 +4,7 @@
     "slug": "mobile-gps",
     "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/skick.png",
+    "icon": "./assets/hl-logo.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#080808",
     "plugins": [
@@ -12,12 +12,12 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#080808",
-          "image": "./assets/skick.png",
+          "image": "./assets/hl-logo.png",
           "imageWidth": 180,
           "resizeMode": "contain",
           "dark": {
             "backgroundColor": "#080808",
-            "image": "./assets/skick.png"
+            "image": "./assets/hl-logo.png"
           }
         }
       ]
@@ -33,12 +33,12 @@
       "package": "com.amateurcoder316.mobilegps",
       "adaptiveIcon": {
         "backgroundColor": "#080808",
-        "foregroundImage": "./assets/skick.png"
+        "foregroundImage": "./assets/hl-logo.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/skick.png"
+      "favicon": "./assets/hl-logo.png"
     },
     "extra": {
       "eas": {
