@@ -173,7 +173,7 @@ export default function App() {
     return (
       <View style={styles.calibrationScreen}>
         <StatusBar style="light" />
-        <Image source={require('./assets/skick.png')} style={styles.calibrationLogo} resizeMode="contain" />
+        <Image source={require('./assets/hl-logo.png')} style={styles.calibrationLogo} resizeMode="contain" />
 
         <View style={styles.calibrationContent}>
           <Text style={styles.calibrationTitle}>Kalibroidaan GPS</Text>
@@ -269,13 +269,7 @@ function Info({ label, value }: { label: string; value: string }) {
 function Branding() {
   return (
     <View style={styles.branding}>
-      <View style={styles.brandLogoFrame}>
-        <Image source={require('./assets/skick.png')} style={styles.brandLogo} resizeMode="contain" />
-      </View>
-      <Text style={styles.brandX}>×</Text>
-      <View style={styles.brandLogoFrame}>
-        <Image source={require('./assets/hl-logo.png')} style={styles.harbourLogo} resizeMode="contain" />
-      </View>
+      <Image source={require('./assets/hl-logo.png')} style={styles.harbourLogo} resizeMode="contain" />
     </View>
   );
 }
@@ -518,32 +512,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 13,
-    paddingVertical: 7,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 14,
     backgroundColor: '#0d0d0d',
     borderWidth: 1,
     borderColor: '#181818',
     opacity: 0.88,
   },
-  brandLogoFrame: {
-    width: 62,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandLogo: {
-    width: 58,
-    height: 25,
-  },
-  brandX: {
-    color: '#454545',
-    fontSize: 14,
-    fontWeight: '500',
-    marginHorizontal: 5,
-  },
   harbourLogo: {
-    width: 60,
-    height: 25,
+    width: 92,
+    height: 28,
   },
 });
